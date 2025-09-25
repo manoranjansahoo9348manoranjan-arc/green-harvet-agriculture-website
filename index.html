@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Green Harvest - Agriculture Website</title>
+  <link rel="icon" href="Logo1.png" type="image/png">
+  <style>
+    :root{
+      --green-1:#2e7d32; --green-2:#388e3c; --accent:#66bb6a;
+      --card-bg:#e0f2f1; --muted:#6b6b6b;
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial, Helvetica, sans-serif;margin:0;background:#f0fff0;color:#222;line-height:1.4}
+    header{background:linear-gradient(90deg,var(--green-1),var(--green-2));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:1000}
+    header img{height:50px}
+    header h1{font-size:1.6rem;margin:0;flex:1}
+    nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0}
+    nav a{color:white;text-decoration:none;padding:8px 12px;border-radius:8px;display:inline-block}
+    nav a:hover{background:rgba(255,255,255,0.08)}
+    .menu-toggle{display:none;cursor:pointer;gap:4px;flex-direction:column}
+    .menu-toggle div{width:26px;height:3px;background:#fff;border-radius:2px}
+
+    /* hero */
+    .hero{height:64vh;background:url('https://wallpaperaccess.com/full/137506.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;position:relative}
+    .hero::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.45)}
+    .hero-content{position:relative;z-index:1;padding:0 20px}
+    .hero h2{font-size:2.6rem;margin:0 0 10px}
+    .hero p{font-size:1.05rem;margin:0;max-width:780px}
+
+    .controls{display:flex;gap:12px;align-items:center;justify-content:center;padding:18px 12px;background:#f7fff7}
+    .search {display:flex;gap:8px;align-items:center}
+    .search input{padding:10px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);width:320px;max-width:60vw}
+    .filters select{padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12)}
+    .btn{background:var(--green-1);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    .btn.secondary{background:transparent;color:var(--green-1);border:1px solid var(--green-1)}
+
+    .interactive-section{padding:36px 18px 60px}
+    .interactive-section h2{color:var(--green-1);font-size:1.6rem;margin:6px 0 18px;text-align:center}
+    .interactive-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;max-width:1200px;margin:0 auto}
+    .card{background:var(--card-bg);padding:14px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(0,0,0,0.06);transition:transform .18s ease,box-shadow .18s ease;display:flex;flex-direction:column;gap:8px}
+    .card:hover{transform:translateY(-6px);box-shadow:0 12px 28px rgba(0,0,0,0.12)}
+    .card img{width:100%;height:130px;object-fit:cover;border-radius:8px}
+    .card h3{margin:6px 0;color:#0b5d3b;font-size:1.05rem}
+    .card p{margin:0;color:var(--muted);font-size:0.95rem}
+    .card .actions{margin-top:auto;display:flex;gap:8px;align-items:center}
+
+    /* counters */
+    .counter-section{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;padding:14px 8px;background:#fff;box-shadow:inset 0 1px 0 rgba(0,0,0,0.02)}
+    .counter{padding:12px 18px;border-radius:12px;background:linear-gradient(180deg,#f1fff1,#e8fbec);text-align:center;min-width:160px}
+    .counter h3{font-size:1.6rem;margin:0;color:var(--green-1)}
+    .counter p{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
+
+    /* newsletter/footer */
+    .newsletter{max-width:900px;margin:24px auto;padding:18px;background:#c8e6c9;border-radius:12px;display:flex;gap:12px;align-items:center;justify-content:center}
+    .newsletter input{padding:10px;border-radius:8px;border:1px solid #388e3c;width:320px;max-width:60%}
+
+    footer{background:var(--green-1);color:#fff;padding:18px;text-align:center;margin-top:26px;border-top:4px solid var(--green-2)}
+
+    /* top button */
+    #topBtn{display:none;position:fixed;right:18px;bottom:18px;background:var(--green-2);color:#fff;border:none;padding:12px;border-radius:50%;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,0.18);z-index:1000}
+
+    /* modals & widgets */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:1500;padding:18px}
+    .modal{background:#fff;border-radius:12px;max-width:680px;width:100%;padding:18px;box-shadow:0 12px 36px rgba(0,0,0,0.25)}
+    .modal h3{margin-top:0}
+    .modal .row{display:flex;gap:12px;flex-wrap:wrap}
+    .modal label{display:block;font-size:0.9rem;margin-bottom:6px}
+    .modal input, .modal select, .modal textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd}
+    .close-x{position:absolute;right:18px;top:12px;background:transparent;border:none;font-size:22px;color:#333;cursor:pointer}
+
+    /* responsive */
+    @media(max-width:900px){ .hero{height:50vh} .hero h2{font-size:1.8rem} header h1{font-size:1.2rem}}
+    @media(max-width:700px){ nav ul{display:none} .menu-toggle{display:flex} .controls{flex-direction:column;gap:10px} .newsletter{flex-direction:column} .search input{width:100%} .card img{height:120px} }
+
+    /* small helpers */
+    .muted{color:white;font-size:0.9rem}
+    .pill{background:#fff;padding:6px 10px;border-radius:999px;border:1px solid #e7f5ea;font-weight:600}
+  </style>
+</head>
+<body>
+
+  <header aria-label="Main header">
+    <img src="baner.png" alt="Green Harvest logo">
+    <h1>Green Harvest</h1>
+
+    <div class="menu-toggle" onclick="document.querySelector('nav ul').classList.toggle('show')" aria-hidden="true">
+      <div></div><div></div><div></div>
+    </div>
+
+    <nav>
+      <ul>
+        <li><a href="#info">Information</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#schemes">Govt Schemes</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Google Translate (15 Indian languages only) -->
+  <div id="google_translate_element" style="text-align:center;padding:10px;background:#fff"></div>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <h2 id="hero-title">Grow with Nature — Green Harvest</h2>
+      <p>Practical tools, market info, and expert guidance for Indian farmers — in local languages.</p>
+    </div>
+  </section>
+
+  <!-- controls: search + filters -->
+  <div class="controls" role="region" aria-label="Search and filters">
+    <div class="search" role="search">
+      <input id="searchInput" type="search" placeholder="Search tools, crops, schemes, mandi..." aria-label="Search tools">
+      <button class="btn" onclick="applySearch()">Search</button>
+      <button class="btn secondary" onclick="resetSearch()">Reset</button>
+    </div>
+
+    <div class="filters" aria-hidden="false">
+      <select id="categoryFilter" onchange="filterCategory()">
+        <option value="">All Categories</option>
+        <option value="market">Market & Mandi</option>
+        <option value="weather">Weather</option>
+        <option value="loans">Loans & Finance</option>
+        <option value="advice">Expert & AI</option>
+        <option value="guides">Guides</option>
+        <option value="storage">Storage</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tools grid -->
+  <section class="interactive-section" id="tools" aria-labelledby="tools-heading">
+    <h2 id="tools-heading">Farmer Tools & Resources</h2>
+
+    <div class="interactive-grid" id="cardsGrid">
+
+      <!-- Information -->
+      <article class="card" data-tags="info" id="card-info">
+        <img src="https://cdn.dribbble.com/users/1733140/screenshots/11959043/media/ebded6eb073933fecc04cd6046e2e2b0.gif" alt="Information">
+        <h3>Information</h3>
+        <p>Central hub: announcements, advisories and quick links for farmers.</p>
+        <div class="actions">
+          <button class="btn" onclick="openModal('modal-info')">Open</button>
+        </div>
+      </article>
+
+      <!-- AI Assistant Card -->
+<article class="card" data-tags="ai" id="card-ai">
+  <img src="https://www.sapphireinfocom.com/images/robot1.gif" alt="AI Assistant">
+  <h3>AI Assistant</h3>
+  <p>Smart AI-powered farming assistant to answer queries and give crop advice.</p>
+  <div class="actions">
+    <button class="btn" onclick="openModal('modal-ai')">Ask AI</button>
+  </div>
+</article>
+
+<!-- Buy Product Card -->
+<article class="card" data-tags="buy" id="card-buy">
+  <img src="https://niktechsolution.com/images/krishna/ecommerce.gif" alt="Buy Product">
+  <h3>Buy Product</h3>
+  <p>Explore fertilizers, pesticides, and tools directly from Green Harvest store.</p>
+  <div class="actions">
+    <button class="btn" onclick="window.location.href='buy.html'">Shop Now</button>
+  </div>
+</article>
+
+
+      <!-- Farmer Loan Support -->
+      <article class="card" data-tags="loans" id="card-loans">
+        <img src="https://media.lordicon.com/icons/wired/outline/2367-loan.gif" alt="Loans">
+        <h3>Farmer Loan Support</h3>
+        <p>Loan schemes, eligibility check, loan document checklist and contact form.</p>
+        <div class="actions">
+          <button class="btn" onclick="openModal('modal-loan')">Apply / Check</button>
+        </div>
+      </article>
+
+      <!-- Farmer's Book Collection -->
+      <article class="card" data-tags="info" id="card-books">
+        <img src="https://cdn.dribbble.com/users/527271/screenshots/2470948/loop_2.gif" alt="Books">
+        <h3>Farmer's Book Collection</h3>
+        <p>Download free guides, manuals and e-books about crops, organic farming and post-harvest.</p>
+        <div class="actions">
+          <button class="btn" onclick="openBooks()">View Books</button>
+        </div>
+      </article>
+
+      <!-- Expert Consultation -->
+      <article class="card" data-tags="advice" id="card-expert">
+        <img src="https://www.tytoncapital.com/wp-content/uploads/2024/06/financial-adviser-free-consultation-opt.gif" alt="Experts">
+        <h3>Expert Consultation</h3>
+        <p>Book a call or ask an agronomist — upload photo of crop issues for personalised advice.</p>
+        <div class="actions">
+          <button class="btn" onclick="openModal('modal-expert')">Consult</button>
+        </div>
+      </article>
+
+      <!-- Farming Tips -->
+      <article class="card" data-tags="guides" id="card-tips">
+        <img src="https://i.makeagif.com/media/2-11-2025/DaZDoq.gif" alt="Tips">
+        <h3>Farming Tips</h3>
+        <p>Daily tips: sowing, spacing, irrigation, integrated pest management and low-cost solutions.</p>
+        <div class="actions">
+          <button class="btn" onclick="openTips()">Read Tips</button>
+        </div>
+      </article>
+
+      <!-- Weather Updates -->
+      <article class="card" data-tags="weather" id="card-weather">
+        <img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_632/3f61ec27118125.5636032dd67b0.gif" alt="Weather">
+        <h3>Weather Updates</h3>
+        <p>Live weather widget placeholder. (Ready for OpenWeatherMap / IMD integration.)</p>
+        <div class="actions">
+          <button class="btn" onclick="openModal('modal-weather')">Show Weather</button>
+        </div>
+      </article>
+
+      <!-- Mandi (Market) -->
+      <article class="card" data-tags="market" id="card-mandi">
+        <img src="https://media2.giphy.com/media/icDlzBfN72ibglz3H8/giphy.gif" alt="Mandi">
+        <h3>Mandi (Local Markets)</h3>
+        <p>Find nearby mandi prices, arrivals and buyer contact details for common crops.</p>
+        <div class="actions">
+          <button class="btn" onclick="openMandi()">Open Mandi</button>
+        </div>
+      </article>
+
+      <!-- Agriculture News -->
+      <article class="card" data-tags="info" id="card-news">
+        <img src="https://media.tenor.com/YNp5t_lLA2oAAAAM/breaking-news-news.gif" alt="News">
+        <h3>Agriculture News</h3>
+        <p>Latest updates on agriculture policy, market trends and research in India.</p>
+        <div class="actions">
+          <button class="btn" onclick="openNews()">Read</button>
+        </div>
+      </article>
+
+      <!-- Market Prices -->
+      <article class="card" data-tags="market" id="card-marketprices">
+        <img src="https://tci.cornell.edu/wp-content/uploads/2021/08/Fruit_Mandi_by_PradeepGaurs_Shutterstock.jpg" alt="Market Prices">
+        <h3>Market Prices</h3>
+        <p>Wholesale and retail price snapshots across key crops — regional filters included.</p>
+        <div class="actions">
+          <button class="btn" onclick="openMarket()">View Prices</button>
+        </div>
+      </article>
+
+      <article class="card" data-tags="more" id="card-more">
+  <img src="https://cdn.dribbble.com/users/1277402/screenshots/3957368/media/e61834c7229b120ca4ea4c1c5e5aee9c.gif" alt="More Tools">
+  <h3>More Tools & Resources</h3>
+  <p>Discover additional farming tools, guides, and services to help you grow sustainably.</p>
+  <div class="actions">
+    <button class="btn" onclick="window.location.href='more-tools.html'">Explore More</button>
+  </div>
+</article>
+
+    </div>
+  </section>
+
+  <!-- Counters -->
+  <section class="counter-section" aria-hidden="false">
+    <div class="counter"><h3 id="farmers">0</h3><p>Farmers Reached</p></div>
+    <div class="counter"><h3 id="hectares">0</h3><p>Hectares Improved</p></div>
+    <div class="counter"><h3 id="toolsCount">0</h3><p>Tools Available</p></div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter" aria-label="Subscribe">
+    <input id="newsletterEmail" type="email" placeholder="Enter your email for updates" aria-label="Email for newsletter">
+    <button class="btn" onclick="subscribeNewsletter()">Subscribe</button>
+    <div class="muted">We respect your privacy — simple farm-focused updates in regional languages.</div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <div style="max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:8px;align-items:center">
+      <div class="muted">Contact: Green Harvest · support@greenharvest.example · Phone: +91-XXXXXXXXXX</div>
+      <div>&copy; 2025 Green Harvest. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Scroll to top -->
+  <button id="topBtn" title="Back to top" onclick="scrollToTop()">↑</button>
+
+  <!-- Modal/backdrop container (reused) -->
+  <div id="modalBackdrop" class="modal-backdrop" onclick="closeModal(event)">
+    <div id="modalContent" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close-x" onclick="closeModalBtn()" aria-label="Close">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Hidden content templates -->
+  <template id="tpl-info">
+    <h3 id="modalTitle">Information</h3>
+    <p>Welcome to Green Harvest — centralized news, farmer advisories, contact links, and emergency alerts. Use the search above or the tools to the left to navigate.</p>
+  </template>
+
+  <template id="tpl-loan">
+    <h3 id="modalTitle">Farmer Loan Support</h3>
+    <p>Check loan eligibility, find documentation help, and apply for Kisan Credit Card or other state/crop loans.</p>
+    <div class="row">
+      <div style="flex:1">
+        <label>Full name</label><input id="loanName" placeholder="Your name">
+      </div>
+      <div style="flex:1">
+        <label>Phone</label><input id="loanPhone" placeholder="+91">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>State / District</label><input id="loanRegion" placeholder="State / District">
+    </div>
+    <div style="margin-top:10px">
+      <label>Loan Type</label>
+      <select id="loanType">
+        <option>Crop loan</option>
+        <option>Kisan Credit Card</option>
+        <option>Equipment loan</option>
+        <option>Cold storage subsidy</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn" onclick="submitLoan()">Submit</button>
+      <button class="btn secondary" onclick="closeModalBtn()">Cancel</button>
+    </div>
+  </template>
+
+  <template id="tpl-expert">
+    <h3 id="modalTitle">Expert Consultation</h3>
+    <p>Upload a photo, describe symptoms and choose type of consultation (chat / call / visit).</p>
+    <div class="row">
+      <div style="flex:1">
+        <label>Your name</label><input id="expName" placeholder="Farmer name">
+      </div>
+      <div style="flex:1">
+        <label>Phone</label><input id="expPhone" placeholder="+91">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>Crop / Problem description</label>
+      <textarea id="expDesc" rows="3" placeholder="Yellowing leaves, spots, pests..."></textarea>
+    </div>
+    <div style="margin-top:10px">
+      <label>Upload photo (optional)</label><input id="expPhoto" type="file" accept="image/*">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn" onclick="submitExpert()">Request</button>
+      <button class="btn secondary" onclick="closeModalBtn()">Close</button>
+    </div>
+  </template>
+
+  <template id="tpl-ai">
+    <h3 id="modalTitle">AI Crop Recommender (Prototype)</h3>
+    <p>Provide soil type, water availability and preferred season for a quick suggestion.</p>
+    <div class="row">
+      <div style="flex:1">
+        <label>Soil Type</label>
+        <select id="aiSoil">
+          <option>Loamy</option><option>Clay</option><option>Sandy</option><option>Lateritic</option><option>Alluvial</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label>Water Availability</label>
+        <select id="aiWater"><option>High</option><option>Moderate</option><option>Low</option></select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>Preferred Season</label>
+      <select id="aiSeason"><option>Kharif</option><option>Rabi</option><option>Zaid</option></select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn" onclick="runAI()">Get Recommendation</button>
+      <button class="btn secondary" onclick="closeModalBtn()">Close</button>
+    </div>
+    <div id="aiResult" style="margin-top:12px" class="muted"></div>
+  </template>
+
+  <template id="tpl-weather">
+    <h3 id="modalTitle">Weather Updates</h3>
+    <p>This is a placeholder for a live weather widget (OpenWeatherMap / IMD integration). Enter location below to simulate a quick report.</p>
+    <div class="row">
+      <div style="flex:1">
+        <label>State / City</label><input id="wCity" placeholder="e.g., Bhubaneswar, Odisha">
+      </div>
+      <div style="flex:0 0 160px">
+        <label>&nbsp;</label>
+        <button class="btn" onclick="simulateWeather()">Show</button>
+      </div>
+    </div>
+    <div id="weatherOutput" style="margin-top:10px"></div>
+  </template>
+
+  <template id="tpl-schemes">
+    <h3 id="modalTitle">Government Schemes</h3>
+    <p>Central and State agricultural schemes aggregator: subsidies, insurance, input assistance and farmer welfare programs. Choose a topic:</p>
+    <div class="row">
+      <div style="flex:1">
+        <select id="schemeSelect">
+          <option>PM-Kisan</option><option>KCC</option><option>FPO Support</option><option>Cold Chain Subsidy</option><option>Soil Health Card</option>
+        </select>
+      </div>
+      <div style="flex:0 0 140px">
+        <button class="btn" onclick="showScheme()">Show</button>
+      </div>
+    </div>
+    <div id="schemeOutput" style="margin-top:12px" class="muted"></div>
+  </template>
+
+  <template id="tpl-fert">
+    <h3 id="modalTitle">Fertilizer Guide</h3>
+    <p>Get recommended dosages and safe handling steps. Choose crop and soil:</p>
+    <div class="row">
+      <div style="flex:1"><label>Crop</label><input id="fertCrop" placeholder="Wheat / Rice / Maize / Potato"></div>
+      <div style="flex:1"><label>Soil</label><input id="fertSoil" placeholder="Loamy / Clay / Sandy"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+      <button class="btn" onclick="getFertGuide()">Get Guide</button>
+      <button class="btn secondary" onclick="closeModalBtn()">Close</button>
+    </div>
+    <div id="fertResult" style="margin-top:12px" class="muted"></div>
+  </template>
+
+  <template id="tpl-storage">
+    <h3 id="modalTitle">Cold Storage Finder</h3>
+    <p>Enter your district to locate cold storage and contact details (prototype directory).</p>
+    <div class="row">
+      <div style="flex:1"><label>District / City</label><input id="storageLoc" placeholder="e.g., Pune"></div>
+      <div style="flex:0 0 140px"><label>&nbsp;</label><button class="btn" onclick="findStorage()">Find</button></div>
+    </div>
+    <div id="storageResult" style="margin-top:10px" class="muted"></div>
+  </template>
+
+  <template id="tpl-calendar">
+    <h3 id="modalTitle">Crop Calendar</h3>
+    <p>Select state and crop to view sowing/harvest windows (prototype).</p>
+    <div class="row">
+      <div style="flex:1"><label>State</label><input id="calState" placeholder="e.g., Odisha"></div>
+      <div style="flex:1"><label>Crop</label><input id="calCrop" placeholder="e.g., Rice"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+      <button class="btn" onclick="showCalendar()">Show</button>
+      <button class="btn secondary" onclick="closeModalBtn()">Cancel</button>
+    </div>
+    <div id="calOutput" style="margin-top:12px" class="muted"></div>
+  </template>
+
+  <template id="tpl-sustain">
+    <h3 id="modalTitle">Sustainable Farming</h3>
+    <p>Soil health, crop rotation, water management and small-budget organic solutions. Quick reads and checklists included.</p>
+    <ul>
+      <li>Soil health card actions</li>
+      <li>Mulching & water-saving micro-irrigation</li>
+      <li>Composting & biofertilizers</li>
+    </ul>
+    <div style="text-align:right"><button class="btn" onclick="closeModalBtn()">Close</button></div>
+  </template>
+
+  <!-- Minimal scripts: functional prototype -->
+  <script>
+    // ---------- Google Translate languages (15 Indian languages) ----------
+    function googleTranslateElementInit() {
+      // 15 Indian languages only (language codes): hi,bn,te,mr,ta,ur,gu,kn,ml,or,pa,as,sd,ks,ne
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'hi,bn,te,mr,ta,ur,gu,kn,ml,or,pa,as,sd,ks,ne',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+    // Load translate script
+    (function(){
+      var s = document.createElement('script');
+      s.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      document.head.appendChild(s);
+    })();
+
+    // ---------- Counters ----------
+    function animateCounter(id, end, duration=1200){
+      const el = document.getElementById(id);
+      let start = 0;
+      const step = Math.max(1, Math.floor(end / (duration / 20)));
+      const t = setInterval(()=> {
+        start += step;
+        if(start >= end){ el.innerText = end.toLocaleString('en-IN'); clearInterval(t); }
+        else el.innerText = start.toLocaleString('en-IN');
+      },20);
+    }
+    window.addEventListener('load', ()=>{
+      animateCounter('farmers', 5120);
+      animateCounter('hectares', 1280);
+      animateCounter('toolsCount', 15);
+    });
+
+    // ---------- Scroll to top ----------
+    const topBtn = document.getElementById('topBtn');
+    window.onscroll = function(){ topBtn.style.display = window.scrollY > 200 ? 'block' : 'none'; }
+    function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+    // ---------- Modal handling ----------
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalBody = document.getElementById('modalBody');
+    function openModal(templateId){
+      const tpl = document.getElementById('tpl-'+templateId.replace('modal-',''));
+      if(!tpl) {
+        // fallback: accept full id strings like 'modal-info' or direct template ids
+        const direct = document.getElementById(templateId);
+        if(direct){ modalBody.innerHTML = direct.innerHTML; modalBackdrop.style.display='flex'; return; }
+      }
+      modalBody.innerHTML = tpl ? tpl.innerHTML : '<p>Content not found</p>';
+      modalBackdrop.style.display = 'flex';
+    }
+    function closeModal(e){
+      // close when click outside modal content
+      if(e.target === modalBackdrop) closeModalBtn();
+    }
+    function closeModalBtn(){ modalBackdrop.style.display='none'; modalBody.innerHTML=''; }
+
+    // ---------- Simple search & filter ----------
+    function applySearch(){
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#cardsGrid .card');
+      cards.forEach(c=>{
+        const text = (c.innerText||'').toLowerCase();
+        c.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+    function resetSearch(){
+      document.getElementById('searchInput').value='';
+      document.querySelectorAll('#cardsGrid .card').forEach(c=>c.style.display='');
+      document.getElementById('categoryFilter').value='';
+    }
+    function filterCategory(){
+      const cat = document.getElementById('categoryFilter').value;
+      document.querySelectorAll('#cardsGrid .card').forEach(c=>{
+        if(!cat) { c.style.display=''; return; }
+        c.style.display = c.dataset.tags && c.dataset.tags.indexOf(cat) !== -1 ? '' : 'none';
+      });
+    }
+
+    // ---------- Simulated actions (placeholders) ----------
+    function openBooks(){
+      alert('Open Farmer\'s Book Collection (prototype) — add downloadable pdfs or links here.');
+    }
+    function openTips(){ alert('Farming Tips — populate this with daily tips or RSS feed.'); }
+    function openMandi(){ alert('Mandi module (prototype) — integrate with state mandi APIs or local database.'); }
+    function openNews(){ alert('Agriculture News (prototype) — integrate RSS/news APIs for live feed.'); }
+    function openMarket(){ alert('Market Prices (prototype) — integrate with mandi price APIs or scrape official sources.'); }
+
+    // ---------- Newsletter ----------
+    function subscribeNewsletter(){
+      const email = document.getElementById('newsletterEmail').value.trim();
+      if(!email){ alert('Please enter email'); return; }
+      alert('Subscribed: ' + email + ' (prototype). Use backend to store and send localized newsletters.');
+      document.getElementById('newsletterEmail').value='';
+    }
+
+    // ---------- Loan submission (simulated) ----------
+    function submitLoan(){
+      const name = document.getElementById('loanName').value || '';
+      const phone = document.getElementById('loanPhone').value || '';
+      if(!name || !phone){ alert('Please enter name & phone'); return; }
+      alert('Loan request submitted for ' + name + '. Our team will reach you. (Prototype)');
+      closeModalBtn();
+    }
+
+    // ---------- Expert consult ----------
+    function submitExpert(){
+      const name = document.getElementById('expName').value || '';
+      const phone = document.getElementById('expPhone').value || '';
+      const desc = document.getElementById('expDesc').value || '';
+      if(!name || !phone || !desc){ alert('Please add name, phone and problem description'); return; }
+      alert('Thanks — an expert will contact you shortly (prototype).');
+      closeModalBtn();
+    }
+
+    // ---------- AI recommender (simple heuristics) ----------
+    function runAI(){
+      const soil = document.getElementById('aiSoil').value;
+      const water = document.getElementById('aiWater').value;
+      const season = document.getElementById('aiSeason').value;
+      const out = document.getElementById('aiResult');
+      // Simple rule-based suggestion (prototype)
+      let recommendation = 'Suggested crops: ';
+      if(season==='Kharif'){
+        if(soil==='Loamy' && water!=='Low') recommendation += 'Rice, Maize';
+        else if(soil==='Sandy' && water==='Low') recommendation += 'Millets, Groundnut';
+        else recommendation += 'Maize, Pulses';
+      } else if(season==='Rabi'){
+        if(water==='Low') recommendation += 'Gram, Mustard';
+        else recommendation += 'Wheat, Mustard';
+      } else { // Zaid
+        recommendation += 'Vegetables (melon, cucumber), short-season pulses';
+      }
+      out.innerText = recommendation + ' — (prototype AI: for production use trained model & local data).';
+    }
+
+    // ---------- Weather simulate ----------
+    function simulateWeather(){
+      const loc = document.getElementById('wCity').value || 'your area';
+      const out = document.getElementById('weatherOutput');
+      out.innerHTML = `<strong>${loc}</strong>: 26°C, Humidity 72%, Light rain possible. (Simulated)`;
+    }
+
+    // ---------- Schemes ----------
+    function showScheme(){
+      const sel = document.getElementById('schemeSelect').value;
+      const out = document.getElementById('schemeOutput');
+      out.innerHTML = `<strong>${sel}</strong>: Details and application help (prototype). Contact your nearest agriculture office for state-specific steps.`;
+    }
+
+    // ---------- Fert guide ----------
+    function getFertGuide(){
+      const crop = document.getElementById('fertCrop').value || 'selected crop';
+      const soil = document.getElementById('fertSoil').value || 'your soil';
+      const out = document.getElementById('fertResult');
+      out.innerHTML = `${crop} on ${soil}: Follow SHC recommendations — balanced NPK, apply FYM, get soil test for precise dosing.`;
+    }
+
+    // ---------- Storage finder ----------
+    function findStorage(){
+      const loc = document.getElementById('storageLoc').value || 'your area';
+      document.getElementById('storageResult').innerText = `Nearest cold storage to ${loc}: Example ColdStore Pvt Ltd — Contact: +91-XXXXXXXXXX (prototype)`;
+    }
+
+    // ---------- Calendar ----------
+    function showCalendar(){
+      const st = document.getElementById('calState').value || 'State';
+      const crop = document.getElementById('calCrop').value || 'Crop';
+      document.getElementById('calOutput').innerText = `${crop} in ${st}: Sowing window: Jun-Jul; Harvest: Oct-Nov (example). Use local calendar for accuracy.`;
+    }
+
+    // Generic open modal by id mapping
+    function openModalById(id){
+      const map = {
+        'modal-info':'tpl-info','modal-loan':'tpl-loan','modal-expert':'tpl-expert','modal-ai':'tpl-ai',
+        'modal-weather':'tpl-weather','modal-schemes':'tpl-schemes','modal-fert':'tpl-fert',
+        'modal-storage':'tpl-storage','modal-calendar':'tpl-calendar','modal-sustain':'tpl-sustain'
+      };
+      const tplId = map[id] || id;
+      const tpl = document.getElementById(tplId);
+      if(tpl) { modalBody.innerHTML = tpl.innerHTML; modalBackdrop.style.display='flex'; }
+    }
+
+    // small helpers to call openModal with template keys used earlier
+    function openModalKey(key){
+      // key like 'modal-info' or 'tpl-ai'
+      openModalById(key);
+    }
+
+    // convenience wrappers matching earlier onclicks
+    function openModal(key){ openModalById(key); }
+    function openCalendar(){ openModalById('modal-calendar'); }
+    function openBooks(){ alert('Books view — attach PDFs or links in production.'); }
+    function openMandi(){ alert('Mandi module — integrate state mandi APIs for live data.'); }
+
+    // Ensure keyboard accessibility: close modal on Escape
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && modalBackdrop.style.display === 'flex') closeModalBtn();
+    });
+
+    // Simple initial binding for a couple of card buttons that call templates
+    // (Buttons in markup call openModal('modal-...') directly)
+  </script>
+
+  <!-- External icons or images used are via public CDNs in this prototype -->
+</body>
+</html>
